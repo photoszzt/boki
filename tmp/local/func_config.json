@@ -1,0 +1,5 @@
+[
+    { "funcName": "wcsource", "funcId": 20, "minWorkers": 1, "maxWorkers": 1 },
+    { "funcName": "wordcountsplit", "funcId": 30, "minWorkers": 1, "maxWorkers": 1 },
+    { "funcName": "wordcountcounter", "funcId": 40, "minWorkers": 3, "maxWorkers": 3 }
+]

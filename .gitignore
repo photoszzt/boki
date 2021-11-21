@@ -35,6 +35,8 @@
 
 # Misc
 /src/bin/test_*.cpp
-/tmp/
 /config.mk
 *~
+
+deps/zookeeper-client-c/.project
+deps/zookeeper-client-c/.settings/

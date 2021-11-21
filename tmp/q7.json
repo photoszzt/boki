@@ -1,0 +1,5 @@
+[
+    { "funcName": "source", "funcId": 20, "minWorkers": 1, "maxWorkers": 1 },
+    { "funcName": "q7bidskeyedbyprice", "funcId": 30, "minWorkers": 1, "maxWorkers": 1 },
+    { "funcName": "query7", "funcId": 40, "minWorkers": 5, "maxWorkers": 5 }
+]

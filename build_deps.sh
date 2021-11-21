@@ -4,7 +4,7 @@ SCRIPT_PATH=$(readlink -f $0)
 BASE_DIR=$(dirname $SCRIPT_PATH)
 CMAKE_BUILD_TYPE="Release"
 ENABLE_DEBUG="no"
-DEPS_INSTALL_PATH=$BASE_DIR/deps/out
+DEPS_INSTALL_PATH=${DEPS_INSTALL_PATH:-$BASE_DIR/deps/out}
 
 while [ ! $# -eq 0 ]
 do

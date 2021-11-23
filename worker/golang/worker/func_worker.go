@@ -8,11 +8,11 @@ import (
 	"log"
 	"net"
 	"os"
-	"time"
 	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	common "cs.utexas.edu/zjia/faas/common"
 	config "cs.utexas.edu/zjia/faas/config"
@@ -644,7 +644,7 @@ func (w *FuncWorker) sharedLogReadCommon(ctx context.Context, message []byte, op
 	} else if result == protocol.SharedLogResultType_EMPTY {
 		return nil, nil
 	} else {
-		return nil, fmt.Errorf("Failed to read log")
+		return nil, fmt.Errorf("Failed to read log with err code: 0x%x", result)
 	}
 }
 

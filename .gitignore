@@ -37,6 +37,7 @@
 /src/bin/test_*.cpp
 /config.mk
 *~
+/tmp/output/
 
 deps/zookeeper-client-c/.project
 deps/zookeeper-client-c/.settings/

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+BUILD=${FAAS_BUILD_TYPE}
+
+/faas/bin/$BUILD/launcher \
+    --fprocess_mode=go \
+    --root_path_for_ipc=/tmp/faas/ipc \
+    --fprocess_output_dir=/tmp/faas/output \
+    --hostname_in_output_fname \
+    --fprocess="$1" \
+    --func_id=$2

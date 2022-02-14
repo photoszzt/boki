@@ -1,0 +1,4 @@
+[
+    { "funcName": "source", "funcId": 20, "minWorkers": 1, "maxWorkers": 1 },
+    { "funcName": "query2", "funcId": 30, "minWorkers": 4, "maxWorkers": 4 }
+]

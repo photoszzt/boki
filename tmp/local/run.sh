@@ -5,8 +5,16 @@ echo $BASE_DIR
 BUILD_TYPE=debug
 # BUILD_TYPE=release
 
-FUNC_IDS="20 30 40"
-FPROCESS=$BASE_DIR/../sharedlog-stream/bin/dspbench_handler
+FUNC_IDS="20 30 40 50 60"
+FPROCESS=$BASE_DIR/../sharedlog-stream/bin/nexmark_handler_debug
+
+cd $BASE_DIR/../sharedlog-stream-experiments/mongodb/replica-set
+docker-compose down
+docker volume rm replica-set_mongo-1
+docker volume rm replica-set_mongo-2
+docker volume rm replica-set_mongo-data-primary
+docker-compose up -d
+cd -
 
 ZK_ROOT=${BASE_DIR}/../apache-zookeeper-3.6.3-bin
 export ZOO_LOG4J_PROP="WARN,CONSOLE"

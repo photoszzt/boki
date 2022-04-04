@@ -1,5 +1,5 @@
 [
-    { "funcName": "scale", "funcId": 10, "minWorkers": 1, "maxWorkers": 1 },
+    { "funcName": "scale", "funcId": 60, "minWorkers": 1, "maxWorkers": 1 },
     { "funcName": "source", "funcId": 20, "minWorkers": 4, "maxWorkers": 4 },
     { "funcName": "q8AucsBySellerID", "funcId": 30, "minWorkers": 4, "maxWorkers": 4 },
     { "funcName": "q8PersonsByID", "funcId": 40, "minWorkers": 4, "maxWorkers": 4 },

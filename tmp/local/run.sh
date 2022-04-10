@@ -2,10 +2,10 @@
 
 BASE_DIR=$(realpath $(dirname $0)/../..)
 echo $BASE_DIR
-BUILD_TYPE=debug
-# BUILD_TYPE=release
+# BUILD_TYPE=debug
+BUILD_TYPE=release
 
-FUNC_IDS="20 30 40 50 60"
+FUNC_IDS="20 30 40"
 FPROCESS=$BASE_DIR/../sharedlog-stream/bin/nexmark_handler_debug
 
 cd $BASE_DIR/../sharedlog-stream-experiments/mongodb/replica-set
@@ -103,7 +103,7 @@ sleep 1
 for i in $ENGINES; do
     mkdir -p $BASE_DIR/tmp/output/node$i
     for func in $FUNC_IDS; do
-        MEASURE_PROC=1 $BASE_DIR/bin/$BUILD_TYPE/launcher \
+        MEASURE_PROC=1 BUFPUSH=1 $BASE_DIR/bin/$BUILD_TYPE/launcher \
             --root_path_for_ipc=/mnt/inmem/faas/engine_node$i \
             --func_id=$func --fprocess_mode=go \
             --fprocess_output_dir=$BASE_DIR/tmp/output/node$i \

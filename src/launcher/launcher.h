@@ -15,7 +15,7 @@ namespace launcher {
 
 class Launcher : public uv::Base {
 public:
-    static constexpr size_t kBufferSize = 4096;
+    static constexpr size_t kBufferSize = 14400;
     static_assert(sizeof(protocol::Message) <= kBufferSize, "kBufferSize is too small");
 
     enum Mode {

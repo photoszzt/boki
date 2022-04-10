@@ -39,10 +39,10 @@
 #endif
 
 #ifndef __FAAS_MESSAGE_SIZE
-#define __FAAS_MESSAGE_SIZE 4096
+#define __FAAS_MESSAGE_SIZE 14400
 #endif
-static_assert(__FAAS_MESSAGE_SIZE <= PIPE_BUF,
-              "__FAAS_MESSAGE_SIZE cannot exceed PIPE_BUF");
+// static_assert(__FAAS_MESSAGE_SIZE <= PIPE_BUF,
+//               "__FAAS_MESSAGE_SIZE cannot exceed PIPE_BUF");
 static_assert(__FAAS_MESSAGE_SIZE >= __FAAS_CACHE_LINE_SIZE * 2,
               "__FAAS_MESSAGE_SIZE is too small");
 

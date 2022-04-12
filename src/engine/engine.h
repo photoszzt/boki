@@ -48,6 +48,10 @@ public:
     Dispatcher* GetOrCreateDispatcher(uint16_t func_id);
     void DiscardFuncCall(const protocol::FuncCall& func_call);
 
+    void OnRecvAuxBuffer(MessageConnection* connection,
+                         uint64_t id, std::span<const char> data);
+    std::optional<std::string> GrabAuxBuffer(uint64_t id);
+
 private:
     class ExternalFuncCallContext;
     friend class log::EngineBase;
@@ -96,6 +100,10 @@ private:
     };
     absl::flat_hash_map</* full_call_id */ uint64_t, AsyncFuncCall>
         async_func_calls_ ABSL_GUARDED_BY(mu_);
+    
+    absl::Mutex aux_buf_mu_;
+    absl::flat_hash_map</* id */ uint64_t, std::string>
+        aux_bufs_ ABSL_GUARDED_BY(aux_buf_mu_);
 
     int64_t last_external_request_timestamp_ ABSL_GUARDED_BY(mu_);
     stat::Counter incoming_external_requests_stat_ ABSL_GUARDED_BY(mu_);

@@ -527,6 +527,29 @@ void Engine::OnRecvMessage(MessageConnection* connection, const Message& message
     ProcessDiscardedFuncCallIfNecessary();
 }
 
+void Engine::OnRecvAuxBuffer(MessageConnection* connection,
+                             uint64_t id, std::span<const char> data) {
+    {
+        absl::MutexLock lk(&aux_buf_mu_);
+        if (aux_bufs_.contains(id)) {
+            LOG(FATAL) << "Duplicated aux buffer ID";
+        }
+        aux_bufs_[id] = std::string(data.data(), data.size());
+    }
+    
+}
+
+std::optional<std::string> Engine::GrabAuxBuffer(uint64_t id) {
+    absl::MutexLock lk(&aux_buf_mu_);
+    if (aux_bufs_.contains(id)) {
+        std::string data = std::move(aux_bufs_[id]);
+        aux_bufs_.erase(id);
+        return data;
+    } else {
+        return std::nullopt;
+    }
+}
+
 void Engine::SendGatewayMessage(const GatewayMessage& message, std::span<const char> payload) {
     EgressHub* hub = CurrentIOWorkerChecked()->PickConnectionAs<EgressHub>(
         kGatewayEgressHubTypeId);

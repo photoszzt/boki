@@ -146,13 +146,10 @@ void EngineBase::MessageHandler(const SharedLogMessage& message,
     }
 }
 
-void EngineBase::PopulateLogTagsAndData(const Message& message, LocalOp* op) {
+void EngineBase::PopulateLogTagsAndData(LocalOp* op, std::span<const char> data) {
     DCHECK(op->type == SharedLogOpType::APPEND);
-    DCHECK_EQ(message.log_aux_data_size, 0U);
-    std::span<const char> data = MessageHelper::GetInlineData(message);
-    size_t num_tags = message.log_num_tags;
+    size_t num_tags = op->user_tags.size();
     if (num_tags > 0) {
-        op->user_tags.resize(num_tags);
         memcpy(op->user_tags.data(), data.data(), num_tags * sizeof(uint64_t));
     }
     op->data.AppendData(data.subspan(num_tags * sizeof(uint64_t)));
@@ -187,7 +184,8 @@ void EngineBase::OnMessageFromFuncWorker(const Message& message) {
 
     switch (op->type) {
     case SharedLogOpType::APPEND:
-        PopulateLogTagsAndData(message, op);
+        DCHECK_EQ(message.log_aux_data_size, 0U);
+        op->user_tags.resize(message.log_num_tags);
         break;
     case SharedLogOpType::READ_NEXT:
     case SharedLogOpType::READ_PREV:
@@ -200,12 +198,75 @@ void EngineBase::OnMessageFromFuncWorker(const Message& message) {
         break;
     case SharedLogOpType::SET_AUXDATA:
         op->seqnum = message.log_seqnum;
-        op->data.AppendData(MessageHelper::GetInlineData(message));
         break;
     default:
         HLOG(FATAL) << "Unknown shared log op type: " << message.log_op;
     }
 
+    std::span<const char> data;
+    std::string aux_buf;
+    bool data_ok = false;
+    if ((message.flags & protocol::kUseAuxBufferFlag) == 0) {
+        data = MessageHelper::GetInlineData(message);
+        data_ok = true;
+    } else {
+        uint64_t id = MessageHelper::GetAuxBufferId(message);
+        absl::MutexLock lk(&request_for_buf_mu_);
+        if (auto tmp = engine_->GrabAuxBuffer(id); tmp.has_value()) {
+            aux_buf = std::move(*tmp);
+            data = STRING_AS_SPAN(aux_buf);
+            data_ok = true;
+        } else {
+            requests_for_buf_[id] = op;
+        }
+    }
+
+    if (!data_ok) {
+        return;
+    }
+    switch (op->type) {
+    case SharedLogOpType::APPEND:
+        PopulateLogTagsAndData(op, data);
+        break;
+    case SharedLogOpType::SET_AUXDATA:
+        op->data.AppendData(data);
+        break;
+    default:
+        break;
+    }
+
+    LocalOpHandler(op);
+}
+
+void EngineBase::OnAuxBufferFromFuncWorker(uint64_t id) {
+    LocalOp* op = nullptr;
+    std::string aux_buf;
+    {
+        absl::MutexLock lk(&request_for_buf_mu_);
+        if (requests_for_buf_.contains(id)) {
+            op = requests_for_buf_.at(id);
+            requests_for_buf_.erase(id);
+            if (auto tmp = engine_->GrabAuxBuffer(id); tmp.has_value()) {
+                aux_buf = std::move(*tmp);
+            } else {
+                UNREACHABLE();
+            }
+        }
+    }
+    if (op == nullptr) {
+        return;
+    }
+    std::span<const char> data = STRING_AS_SPAN(aux_buf);
+    switch (op->type) {
+    case SharedLogOpType::APPEND:
+        PopulateLogTagsAndData(op, data);
+        break;
+    case SharedLogOpType::SET_AUXDATA:
+        op->data.AppendData(data);
+        break;
+    default:
+        break;
+    }
     LocalOpHandler(op);
 }
 

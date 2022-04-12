@@ -34,6 +34,7 @@ public:
                                const protocol::FuncCall& parent_func_call);
     void OnFuncCallCompleted(const protocol::FuncCall& func_call);
     void OnMessageFromFuncWorker(const protocol::Message& message);
+    void OnAuxBufferFromFuncWorker(uint64_t id);
 
 protected:
     uint16_t my_node_id() const { return node_id_; }
@@ -130,12 +131,16 @@ private:
     absl::flat_hash_map</* full_call_id */ uint64_t, FnCallContext>
         fn_call_ctx_ ABSL_GUARDED_BY(fn_ctx_mu_);
 
+    absl::Mutex request_for_buf_mu_;
+    absl::flat_hash_map</* buf_id */ uint64_t, LocalOp*>
+        requests_for_buf_ ABSL_GUARDED_BY(request_for_buf_mu_);
+
     std::optional<LRUCache> log_cache_;
 
     void SetupZKWatchers();
     void SetupTimers();
 
-    void PopulateLogTagsAndData(const protocol::Message& message, LocalOp* op);
+    void PopulateLogTagsAndData(LocalOp* op, std::span<const char> data);
 
     DISALLOW_COPY_AND_ASSIGN(EngineBase);
 };

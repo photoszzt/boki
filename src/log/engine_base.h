@@ -88,6 +88,9 @@ protected:
     void FinishLocalOpWithFailure(LocalOp* op, protocol::SharedLogResultType result,
                                   uint64_t metalog_progress = 0);
 
+    bool SendFuncWorkerAuxBuffer(uint16_t client_id,
+                                 uint64_t buf_id, std::span<const char> data);
+
     void LogCachePut(const LogMetaData& log_metadata, std::span<const uint64_t> user_tags,
                      std::span<const char> log_data);
     std::optional<LogEntry> LogCacheGet(uint64_t seqnum);
@@ -111,6 +114,8 @@ protected:
                               std::span<const char> payload = EMPTY_CHAR_SPAN);
 
     server::IOWorker* SomeIOWorker();
+
+    uint64_t NextAuxBufferId();
 
 private:
     const uint16_t node_id_;

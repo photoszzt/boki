@@ -217,6 +217,9 @@ void EngineBase::OnMessageFromFuncWorker(const Message& message) {
             data = STRING_AS_SPAN(aux_buf);
             data_ok = true;
         } else {
+            if (requests_for_buf_.contains(id)) {
+                LOG(FATAL) << "Duplicated aux buffer ID";
+            }
             requests_for_buf_[id] = op;
         }
     }
@@ -340,6 +343,11 @@ void EngineBase::FinishLocalOpWithFailure(LocalOp* op, SharedLogResultType resul
     FinishLocalOpWithResponse(op, &response, metalog_progress);
 }
 
+bool EngineBase::SendFuncWorkerAuxBuffer(uint16_t client_id,
+                                         uint64_t buf_id, std::span<const char> data) {
+    return engine_->SendFuncWorkerAuxBuffer(client_id, buf_id, data);
+}
+
 void EngineBase::LogCachePut(const LogMetaData& log_metadata,
                              std::span<const uint64_t> user_tags,
                              std::span<const char> log_data) {
@@ -446,6 +454,10 @@ bool EngineBase::SendSequencerMessage(uint16_t sequencer_id,
 
 server::IOWorker* EngineBase::SomeIOWorker() {
     return engine_->SomeIOWorker();
+}
+
+uint64_t EngineBase::NextAuxBufferId() {
+    return engine_->NextAuxBufferId();
 }
 
 }  // namespace log

@@ -55,7 +55,8 @@ Engine::Engine(uint16_t node_id)
           stat::StatisticsCollector<int32_t>::StandardReportCallback("message_delay")),
       input_use_shm_stat_(stat::Counter::StandardReportCallback("input_use_shm")),
       output_use_shm_stat_(stat::Counter::StandardReportCallback("output_use_shm")),
-      discarded_func_call_stat_(stat::Counter::StandardReportCallback("discarded_func_call")) {}
+      discarded_func_call_stat_(stat::Counter::StandardReportCallback("discarded_func_call")),
+      next_aux_buffer_id_(0) {}
 
 Engine::~Engine() {}
 
@@ -536,7 +537,7 @@ void Engine::OnRecvAuxBuffer(MessageConnection* connection,
         }
         aux_bufs_[id] = std::string(data.data(), data.size());
     }
-    
+    shared_log_engine_->OnAuxBufferFromFuncWorker(id);
 }
 
 std::optional<std::string> Engine::GrabAuxBuffer(uint64_t id) {
@@ -568,6 +569,16 @@ bool Engine::SendFuncWorkerMessage(uint16_t client_id, Message* message) {
         return false;
     }
     func_worker->SendMessage(message);
+    return true;
+}
+
+bool Engine::SendFuncWorkerAuxBuffer(uint16_t client_id,
+                                     uint64_t buf_id, std::span<const char> data) {
+    auto func_worker = worker_manager_.GetFuncWorker(client_id);
+    if (func_worker == nullptr) {
+        return false;
+    }
+    func_worker->SendAuxBuffer(buf_id, data);
     return true;
 }
 

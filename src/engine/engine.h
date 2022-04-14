@@ -116,6 +116,8 @@ private:
     stat::Counter output_use_shm_stat_ ABSL_GUARDED_BY(mu_);
     stat::Counter discarded_func_call_stat_ ABSL_GUARDED_BY(mu_);
 
+    std::atomic<uint64_t> next_aux_buffer_id_;
+
     void StartInternal() override;
     void StopInternal() override;
     void OnConnectionClose(server::ConnectionBase* connection) override;
@@ -154,6 +156,8 @@ private:
     void SendGatewayMessage(const protocol::GatewayMessage& message,
                             std::span<const char> payload = EMPTY_CHAR_SPAN);
     bool SendFuncWorkerMessage(uint16_t client_id, protocol::Message* message);
+    bool SendFuncWorkerAuxBuffer(uint16_t client_id,
+                                 uint64_t buf_id, std::span<const char> data);
     void OnExternalFuncCall(const protocol::FuncCall& func_call, uint32_t logspace,
                             std::span<const char> input);
     void ExternalFuncCallCompleted(const protocol::FuncCall& func_call,
@@ -168,6 +172,10 @@ private:
     template<class ValueT>
     bool GrabFromMap(absl::flat_hash_map<uint64_t, ValueT>& map,
                      const protocol::FuncCall& func_call, ValueT* value);
+
+    uint64_t NextAuxBufferId() {
+        return next_aux_buffer_id_.fetch_add(1, std::memory_order_relaxed);
+    }
 
     DISALLOW_COPY_AND_ASSIGN(Engine);
 };

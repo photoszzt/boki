@@ -211,6 +211,7 @@ void EngineBase::OnMessageFromFuncWorker(const Message& message) {
         data_ok = true;
     } else {
         uint64_t id = MessageHelper::GetAuxBufferId(message);
+        VLOG_F(1, "Waiting for aux buffer (ID {})", bits::HexStr0x(id));
         absl::MutexLock lk(&request_for_buf_mu_);
         if (auto tmp = engine_->GrabAuxBuffer(id); tmp.has_value()) {
             aux_buf = std::move(*tmp);
@@ -345,6 +346,7 @@ void EngineBase::FinishLocalOpWithFailure(LocalOp* op, SharedLogResultType resul
 
 bool EngineBase::SendFuncWorkerAuxBuffer(uint16_t client_id,
                                          uint64_t buf_id, std::span<const char> data) {
+    VLOG(1) << "Will send aux buffer with ID " << bits::HexStr0x(buf_id);
     return engine_->SendFuncWorkerAuxBuffer(client_id, buf_id, data);
 }
 

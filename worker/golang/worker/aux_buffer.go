@@ -46,6 +46,7 @@ func (w *FuncWorker) auxBufferReceiver() {
 		if _, err := io.ReadFull(w.engineConn, data); err != nil {
 			log.Fatalf("[FATAL] Failed to receive aux buffer: %v", err)
 		}
+		// log.Printf("[DEBUG] Receive aux buffer: ID=%#016x, size=%d", id, size)
 		auxBuf := &AuxBuffer{id: id, data: data}
 		w.auxBufMux.Lock()
 		if ch, exists := w.auxBufRecvChans[id]; exists {
@@ -67,7 +68,7 @@ func (w *FuncWorker) getAuxBufferChan(id uint64) chan *AuxBuffer {
 		ch = c
 		delete(w.auxBufRecvChans, id)
 	} else {
-		ch := make(chan *AuxBuffer, 1)
+		ch = make(chan *AuxBuffer, 1)
 		w.auxBufRecvChans[id] = ch
 	}
 	w.auxBufMux.Unlock()

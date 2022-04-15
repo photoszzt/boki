@@ -589,6 +589,7 @@ func (w *FuncWorker) SharedLogAppend(ctx context.Context, tags []uint64, data []
 				id:   w.GenerateUniqueID(),
 				data: encodedData,
 			}
+			// log.Printf("[DEBUG] Send aux buffer with ID %#016x", auxBuf.id)
 			w.auxBufSendChan <- auxBuf
 			protocol.FillAuxBufferDataInfo(message, auxBuf.id)
 		}
@@ -633,6 +634,7 @@ func (w *FuncWorker) buildLogEntryFromReadResponse(response []byte) *types.LogEn
 		encodedData = protocol.GetInlineDataFromMessage(response)
 	} else {
 		ch := w.getAuxBufferChan(auxBufId)
+		// log.Printf("[DEBUG] Waiting aux buffer with ID %#016x", auxBufId)
 		auxBuf := <-ch
 		encodedData = auxBuf.data
 	}
@@ -725,14 +727,25 @@ func (w *FuncWorker) SharedLogSetAuxData(ctx context.Context, seqNum uint64, aux
 	if len(auxData) == 0 {
 		return fmt.Errorf("Auxiliary data cannot be empty")
 	}
-	if len(auxData) > protocol.MessageInlineDataSize {
-		return fmt.Errorf("Auxiliary data too larger (size=%d), expect no more than %d bytes", len(auxData), protocol.MessageInlineDataSize)
-	}
+	// if len(auxData) > protocol.MessageInlineDataSize {
+	// 	return fmt.Errorf("Auxiliary data too larger (size=%d), expect no more than %d bytes", len(auxData), protocol.MessageInlineDataSize)
+	// }
 
 	id := atomic.AddUint64(&w.nextLogOpId, 1)
 	currentCallId := atomic.LoadUint64(&w.currentCall)
 	message := protocol.NewSharedLogSetAuxDataMessage(currentCallId, w.clientId, seqNum, id)
-	protocol.FillInlineDataInMessage(message, auxData)
+
+	if len(auxData) <= protocol.MessageInlineDataSize {
+		protocol.FillInlineDataInMessage(message, auxData)
+	} else {
+		auxBuf := &AuxBuffer{
+			id:   w.GenerateUniqueID(),
+			data: auxData,
+		}
+		// log.Printf("[DEBUG] Send aux buffer with ID %#016x", auxBuf.id)
+		w.auxBufSendChan <- auxBuf
+		protocol.FillAuxBufferDataInfo(message, auxBuf.id)
+	}
 
 	w.mux.Lock()
 	outputChan := make(chan []byte, 1)

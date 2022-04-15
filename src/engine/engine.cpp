@@ -530,6 +530,7 @@ void Engine::OnRecvMessage(MessageConnection* connection, const Message& message
 
 void Engine::OnRecvAuxBuffer(MessageConnection* connection,
                              uint64_t id, std::span<const char> data) {
+    VLOG_F(1, "Receive aux buffer (ID {})", bits::HexStr0x(id));
     {
         absl::MutexLock lk(&aux_buf_mu_);
         if (aux_bufs_.contains(id)) {

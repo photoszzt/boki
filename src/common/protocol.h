@@ -495,7 +495,7 @@ public:
 #undef NEW_EMPTY_MESSAGE
 
     static uint64_t GetAuxBufferId(const Message& message) {
-        if ((message.flags) & kUseAuxBufferFlag) {
+        if ((message.flags & kUseAuxBufferFlag) == 0) {
             return kInvalidAuxBufId;
         }
         uint64_t id;

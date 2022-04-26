@@ -1,0 +1,3 @@
+[
+    { "funcName": "slproduce", "funcId": 40, "minWorkers": 1, "maxWorkers": 1 }
+]

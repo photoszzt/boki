@@ -1,0 +1,4 @@
+[
+    { "funcName": "produce", "funcId": 20, "minWorkers": 1, "maxWorkers": 1 },
+    { "funcName": "consume", "funcId": 30, "minWorkers": 1, "maxWorkers": 1 }
+]

@@ -1,0 +1,5 @@
+[
+    { "funcName": "join", "funcId": 20, "minWorkers": 1, "maxWorkers": 1 },
+    { "funcName": "restore", "funcId": 30, "minWorkers": 1, "maxWorkers": 1 },
+    { "funcName": "wintest", "funcId": 40, "minWorkers": 1, "maxWorkers": 1 }
+]

@@ -1,5 +1,5 @@
 #!/bin/bash
-
+rm $HOME/zksetup_down || true
 export ZOO_LOG4J_PROP="WARN,CONSOLE"
 
 SERVER="${ZK_HOST:-zookeeper:2181}"

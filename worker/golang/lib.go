@@ -78,6 +78,8 @@ func Serve(factory types.FuncHandlerFactory) {
 			if planedMaxProcs > currentMaxProcs {
 				runtime.GOMAXPROCS(planedMaxProcs)
 				log.Printf("[INFO] Current GOMAXPROCS is %d", planedMaxProcs)
+			} else {
+				log.Printf("[INFO] Current GOMAXPROCS is %d", currentMaxProcs)
 			}
 			go func(w *worker.FuncWorker) {
 				w.Run()

@@ -20,5 +20,6 @@ fi
 sleep 50
 
 ./bin/zkCli.sh -server $SERVER create /faas/cmd/start
+touch /tmp/zksetup_down
 
 sleep infinity

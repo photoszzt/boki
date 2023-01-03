@@ -59,6 +59,10 @@ func Serve(factory types.FuncHandlerFactory) {
 	if err != nil {
 		maxProcFactor = 8
 	}
+	staticGOMaxProcs, err := strconv.Atoi(os.Getenv("FAAS_STATIC_GO_MAX_PROCS"))
+	if err != nil {
+		staticGOMaxProcs = 0
+	}
 
 	for {
 		message := protocol.NewEmptyMessage()
@@ -73,13 +77,18 @@ func Serve(factory types.FuncHandlerFactory) {
 				log.Fatal("[FATAL] Failed to create FuncWorker: ", err)
 			}
 			numWorkers += 1
-			planedMaxProcs := (numWorkers-1)/maxProcFactor + 1
-			currentMaxProcs := runtime.GOMAXPROCS(0)
-			if planedMaxProcs > currentMaxProcs {
-				runtime.GOMAXPROCS(planedMaxProcs)
-				log.Printf("[INFO] Current GOMAXPROCS is %d", planedMaxProcs)
+			if staticGOMaxProcs > 0 {
+				runtime.GOMAXPROCS(staticGOMaxProcs)
+				log.Printf("[INFO] Current GOMAXPROCS is %d", staticGOMaxProcs)
 			} else {
-				log.Printf("[INFO] Current GOMAXPROCS is %d", currentMaxProcs)
+				planedMaxProcs := (numWorkers-1)/maxProcFactor + 1
+				currentMaxProcs := runtime.GOMAXPROCS(0)
+				if planedMaxProcs > currentMaxProcs {
+					runtime.GOMAXPROCS(planedMaxProcs)
+					log.Printf("[INFO] Current GOMAXPROCS is %d", planedMaxProcs)
+				} else {
+					log.Printf("[INFO] Current GOMAXPROCS is %d", currentMaxProcs)
+				}
 			}
 			go func(w *worker.FuncWorker) {
 				w.Run()

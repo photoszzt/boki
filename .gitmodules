@@ -1,45 +1,60 @@
 [submodule "deps/libuv"]
 	path = deps/libuv
 	url = https://github.com/libuv/libuv.git
+        ignore = dirty
 [submodule "deps/http-parser"]
 	path = deps/http-parser
 	url = https://github.com/nodejs/http-parser.git
+        ignore = dirty
 [submodule "deps/abseil-cpp"]
 	path = deps/abseil-cpp
 	url = https://github.com/abseil/abseil-cpp.git
+        ignore = dirty
 [submodule "deps/json"]
 	path = deps/json
 	url = https://github.com/nlohmann/json.git
+        ignore = dirty
 [submodule "deps/nghttp2"]
 	path = deps/nghttp2
 	url = https://github.com/nghttp2/nghttp2.git
+        ignore = dirty
 [submodule "deps/GSL"]
 	path = deps/GSL
 	url = https://github.com/microsoft/GSL.git
+        ignore = dirty
 [submodule "deps/fmt"]
 	path = deps/fmt
 	url = https://github.com/fmtlib/fmt.git
+        ignore = dirty
 [submodule "deps/pybind11"]
 	path = deps/pybind11
 	url = https://github.com/pybind/pybind11.git
+        ignore = dirty
 [submodule "deps/liburing"]
 	path = deps/liburing
 	url = https://github.com/axboe/liburing.git
+        ignore = dirty
 [submodule "deps/protobuf"]
 	path = deps/protobuf
 	url = https://github.com/protocolbuffers/protobuf.git
+        ignore = dirty
 [submodule "deps/rocksdb"]
 	path = deps/rocksdb
 	url = https://github.com/facebook/rocksdb.git
+        ignore = dirty
 [submodule "deps/xxHash"]
 	path = deps/xxHash
 	url = https://github.com/Cyan4973/xxHash
+        ignore = dirty
 [submodule "deps/jemalloc"]
 	path = deps/jemalloc
 	url = https://github.com/jemalloc/jemalloc.git
+        ignore = dirty
 [submodule "deps/zstd"]
 	path = deps/zstd
 	url = https://github.com/facebook/zstd.git
+        ignore = dirty
 [submodule "deps/tkrzw"]
 	path = deps/tkrzw
 	url = https://github.com/estraier/tkrzw.git
+        ignore = dirty

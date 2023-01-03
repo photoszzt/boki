@@ -1,5 +1,4 @@
 #!/bin/bash
-rm $HOME/zksetup_down || true
 export ZOO_LOG4J_PROP="WARN,CONSOLE"
 
 SERVER="${ZK_HOST:-zookeeper:2181}"
@@ -21,7 +20,6 @@ fi
 sleep 50
 
 ./bin/zkCli.sh -server $SERVER create /faas/cmd/start
-
-touch $HOME/zksetup_down
+touch /tmp/zksetup_down
 
 sleep infinity

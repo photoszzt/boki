@@ -13,9 +13,6 @@ do
       CMAKE_BUILD_TYPE="Debug"
       ENABLE_DEBUG="yes"
       ;;
-    --use_clanr)
-      export CC=clang
-      export CXX=clang++
   esac
   shift
 done
@@ -32,6 +29,8 @@ mkdir -p ${DEPS_INSTALL_PATH}
 
 export PKG_CONFIG_PATH=${DEPS_INSTALL_PATH}/lib/pkgconfig
 
+export CC=clang
+export CXX=clang++
 # Build abseil-cpp
 cd $BASE_DIR/deps/abseil-cpp && rm -rf build && mkdir -p build && cd build && \
   cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_STANDARD=17 \
@@ -100,6 +99,6 @@ cd $BASE_DIR/deps/rocksdb && rm -rf build && mkdir -p build && cd build && \
         -DWITH_JEMALLOC=ON -DWITH_ZSTD=ON -DROCKSDB_BUILD_SHARED=OFF \
         -DWITH_GFLAGS=OFF -DWITH_TESTS=OFF -DWITH_BENCHMARK_TOOLS=OFF \
         -DWITH_CORE_TOOLS=OFF -DWITH_TOOLS=OFF -DWITH_FOLLY_DISTRIBUTED_MUTEX=OFF \
-        -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_PATH} .. && \
+        -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_PATH} -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc .. && \
   make -j$(nproc) install && \
   rm -rf $BASE_DIR/deps/rocksdb/build

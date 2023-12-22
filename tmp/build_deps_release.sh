@@ -7,6 +7,6 @@ sudo ${BASE_DIR}/tmp/mount_overlay.sh
 
 DEPS_INSTALL_PATH=$BASE_DIR/../boki_deps/release \
   OVERLAY_PATH=/mnt/efs_overlay/boki \
-  ${BASE_DIR}/build_deps.sh --use-clang
+  ${BASE_DIR}/build_deps.sh
 
 sudo ${BASE_DIR}/tmp/umount_overlay.sh

@@ -13,6 +13,9 @@ do
       CMAKE_BUILD_TYPE="Debug"
       ENABLE_DEBUG="yes"
       ;;
+    --use_clanr)
+      export CC=clang
+      export CXX=clang++
   esac
   shift
 done

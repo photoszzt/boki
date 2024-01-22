@@ -4,20 +4,84 @@ BASE_DIR=$(realpath $(dirname $0)/../..)
 echo $BASE_DIR
 # BUILD_TYPE=debug
 BUILD_TYPE=release
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-FUNC_IDS="20 30 40"
+QUERY="q1"
+
+usage() {
+ echo "Usage: $0 [OPTIONS]"
+ echo "Options:"
+ echo " -h, --help      Display this help message"
+ echo " --query         QUERY Specify the name of the query" 
+}
+
+has_argument() {
+    [[ ("$1" == *=* && -n ${1#*=}) || ( ! -z "$2" && "$2" != -*)  ]];
+}
+
+extract_argument() {
+  echo "${2:-${1#*=}}"
+}
+
+handle_options() {
+  while [ $# -gt 0 ]; do
+    case $1 in
+      -h | --help)
+        usage
+        exit 0
+        ;;
+      --query*)
+        if ! has_argument $@; then
+          echo "query not specified" >&2
+          usage
+          exit 1
+        fi
+        QUERY=$(extract_argument $@)
+        shift
+        ;;
+      *)
+        echo "Invalid option: $1" >&2
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+  done
+}
+
+handle_options "$@"
+
+FUNC_IDS="20 30 40 50 60 70 80 90"
 FPROCESS=$BASE_DIR/../sharedlog-stream/bin/nexmark_handler_debug
 
-cd $BASE_DIR/../sharedlog-stream-experiments/mongodb/replica-set
-docker-compose down
-docker volume rm replica-set_mongo-1
-docker volume rm replica-set_mongo-2
-docker volume rm replica-set_mongo-data-primary
-docker-compose up -d
-cd -
+docker-compose -f $SCRIPT_DIR/docker-compose.yml up -d
 
-ZK_ROOT=${BASE_DIR}/../apache-zookeeper-3.6.3-bin
+# cd $BASE_DIR/../sharedlog-stream-experiments/mongodb/replica-set
+# docker-compose down
+# docker volume rm replica-set_mongo-1
+# docker volume rm replica-set_mongo-2
+# docker volume rm replica-set_mongo-data-primary
+# docker-compose up -d
+# cd -
+
+ZK_ROOT=${BASE_DIR}/../apache-zookeeper-3.9.1-bin
 export ZOO_LOG4J_PROP="WARN,CONSOLE"
+
+if [[ ! -d $ZK_ROOT ]]; then
+  wget https://dlcdn.apache.org/zookeeper/zookeeper-3.9.1/apache-zookeeper-3.9.1-bin.tar.gz -O ${BASE_DIR}/../apache-zookeeper-3.9.1-bin.tar.gz
+  cd ${BASE_DIR}/../
+  tar -xvf ${BASE_DIR}/../apache-zookeeper-3.9.1-bin.tar.gz
+  cd -
+fi
+
+if [[ ! -d /mnt/inmem ]]; then
+  sudo mkdir -p /mnt/inmem
+fi
+mkdir -p $SCRIPT_DIR/output
+
+if ! mountpoint -q /mnt/inmem; then
+  sudo mount -t tmpfs -o rw,nosuid,nodev tmpfs /mnt/inmem
+fi
 
 ${ZK_ROOT}/bin/zkCli.sh <<EOF
 deleteall /faas
@@ -43,10 +107,11 @@ rm -rf $BASE_DIR/tmp/output/*
 
 GATEWAY_HTTP_PORT=8081
 
+FUNC_CONFIG_FILE=$BASE_DIR/../sharedlog-stream-experiments/nexmark_sharedlog/specs/2_ins/${QUERY}.json
 $BASE_DIR/bin/$BUILD_TYPE/gateway \
     --listen_addr=127.0.0.1 --http_port=$GATEWAY_HTTP_PORT \
     --message_conn_per_worker=2 --tcp_enable_reuseport \
-    --func_config_file=$BASE_DIR/tmp/local/func_config.json \
+    --func_config_file=${FUNC_CONFIG_FILE} \
     --async_call_result_path=$BASE_DIR/tmp/output/async_results \
     --v=0 2>$BASE_DIR/tmp/output/gateway.log &
 PIDS+=($!)
@@ -80,7 +145,7 @@ done
 for i in $ENGINES; do
     $BASE_DIR/bin/$BUILD_TYPE/engine \
         --node_id=$i --enable_shared_log --message_conn_per_worker=2 \
-        --func_config_file=$BASE_DIR/tmp/local/func_config.json \
+        --func_config_file=${FUNC_CONFIG_FILE} \
         --root_path_for_ipc=/mnt/inmem/faas/engine_node$i \
         --slog_engine_enable_cache \
         --v=1 2>$BASE_DIR/tmp/output/engine_node$i.log &

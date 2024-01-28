@@ -168,7 +168,9 @@ sleep 1
 for i in $ENGINES; do
     mkdir -p $BASE_DIR/tmp/output/node$i
     for func in $FUNC_IDS; do
-        MEASURE_PROC=1 BUFPUSH=1 $BASE_DIR/bin/$BUILD_TYPE/launcher \
+        GOGC=200 FAAS_GO_MAX_PROC_FACTOR=1 FAAS_BUILD_TYPE=release \
+        MEASURE_SINK=1 MEASURE_SRC=1 BUFPUSH=1 REDIS_ADDR=127.0.0.1:6379 \
+        $BASE_DIR/bin/$BUILD_TYPE/launcher \
             --root_path_for_ipc=/mnt/inmem/faas/engine_node$i \
             --func_id=$func --fprocess_mode=go \
             --fprocess_output_dir=$BASE_DIR/tmp/output/node$i \

@@ -51,7 +51,7 @@ handle_options() {
 
 handle_options "$@"
 
-FUNC_IDS="20 30 40 50 60 70 80 90"
+FUNC_IDS="20 30 40 50 60 70 80 90 100"
 FPROCESS=$BASE_DIR/../sharedlog-stream/bin/nexmark_handler_debug
 
 docker-compose -f $SCRIPT_DIR/docker-compose.yml up -d
@@ -77,7 +77,7 @@ fi
 if [[ ! -d /mnt/inmem ]]; then
   sudo mkdir -p /mnt/inmem
 fi
-mkdir -p $SCRIPT_DIR/output
+mkdir -p $SCRIPT_DIR/../output
 
 if ! mountpoint -q /mnt/inmem; then
   sudo mount -t tmpfs -o rw,nosuid,nodev tmpfs /mnt/inmem
@@ -107,7 +107,7 @@ rm -rf $BASE_DIR/tmp/output/*
 
 GATEWAY_HTTP_PORT=8081
 
-FUNC_CONFIG_FILE=$BASE_DIR/../sharedlog-stream-experiments/nexmark_sharedlog/specs/2_ins/${QUERY}.json
+FUNC_CONFIG_FILE=$BASE_DIR/../sharedlog-stream-experiments/nexmark_sharedlog/specs/4_ins/${QUERY}.json
 $BASE_DIR/bin/$BUILD_TYPE/gateway \
     --listen_addr=127.0.0.1 --http_port=$GATEWAY_HTTP_PORT \
     --message_conn_per_worker=2 --tcp_enable_reuseport \

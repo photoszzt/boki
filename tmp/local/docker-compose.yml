@@ -9,9 +9,10 @@ services:
       - ZOO_TICK_TIME=2000
       - ALLOW_ANONYMOUS_LOGIN=yes
 
-  redis:
-    hostname: redis
-    image: redis:7.2.4-bookworm
+  snapcache:
+    image: apache/kvrocks:2.7.0
     restart: always
     ports:
-      - '6379:6379'
+      - '6666:6666'
+    entrypoint: "kvrocks"
+    command: ["--dir", "/kvrocks_data", "-c", "/var/lib/kvrocks/kvrocks.conf", "--pidfile", "/var/run/kvrocks/kvrocks.pid", "--bind", "0.0.0.0", "--rocksdb.write_options.sync", "yes"]
